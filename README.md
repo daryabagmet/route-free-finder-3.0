@@ -1,28 +1,55 @@
-## route-free-finder-3.0
+# Route Free Finder
 
-### Step 1: UI foundation (React SPA + Vitest + Tailwind CSS) :construction: 
+Route Free Finder is a React single-page app for exploring routes and contributing
+route information and images. The home view includes route search, an about
+section, and a contribution call to action. The contribution view has tabs for
+creating a route and uploading an image.
 
-**Requirements:**
-- The app renders two pages: Main (route finder) and Add (photo upload).
-- Navigation between the pages works.
-- All tests pass.
+> **Current limitation:** Route search and contribution forms are front-end only.
+> They do not send or save data because no backend is connected.
 
-### Step 2: Map and route inputs
+## Requirements
 
-**Requirements:**
-- The Main page (`/`) displays a HERE map centered on Lisbon and restricted to Lisbon bounds.
-- The user can set point A and point B by typing an address (autosuggest limited to Lisbon) or by clicking on the map.
-- Points outside Lisbon are rejected with a clear error message.
-- Routes longer than the maximum pedestrian distance are rejected with a clear error message.
-- Validation functions are covered by unit tests.
+- Node.js and npm
 
-### Step 3: Pedestrian routing
+## Getting started
 
-**Requirements:**
-- The app requests a route from the HERE Routing API v8 with `transportMode=pedestrian` and decodes the returned polyline.
-- The route is drawn on the map, and its distance and duration are shown.
-- A text list of route steps is available as an alternative to the map.
-- Loading, empty and error states are handled.
-- A valid A - B pair displays a walking route.
-- A failed request shows an error message with a retry option.
-- Validation functions are covered by unit tests.
+Install the project dependencies:
+
+```sh
+npm install
+```
+
+Start the local development server:
+
+```sh
+npm run dev
+```
+
+Open the local URL printed by Vite in your browser.
+
+## Available commands
+
+| Command            | Description                                                 |
+| ------------------ | ----------------------------------------------------------- |
+| `npm run dev`      | Start the Vite development server                           |
+| `npm run build`    | Type-check the app and create a production build in `dist/` |
+| `npm run preview`  | Serve the production build locally                          |
+| `npm run lint`     | Run ESLint                                                  |
+| `npm run test`     | Run Vitest in watch mode                                    |
+| `npm run test:run` | Run Vitest once                                             |
+
+## Technology
+
+- React and TypeScript
+- Vite
+- Tailwind CSS v4 via the Vite plugin
+- ESLint, Prettier, and Vitest
+
+## Project structure
+
+- `src/App.tsx` — switches between the home and contribution views.
+- `src/components/` — reusable page sections and forms.
+- `src/pages/AddPage.tsx` — route creation and image upload tabs.
+- `src/App.css` and `src/index.css` — application and global styles.
+- `public/` — static files served from the site root.
