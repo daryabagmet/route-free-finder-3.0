@@ -12,9 +12,9 @@ export const Header = ({
   onNavigateAbout,
 }: HeaderProps) => {
   return (
-    <header className="site-header">
+    <header className="flex h-20 items-center justify-between bg-[#f4f7fb] px-[max(7.2vw,calc((100vw-75rem)/2))] min-[1500px]:px-[calc((100vw-75rem)/2)] max-[760px]:h-18 max-[760px]:px-[6vw]">
       <a
-        className="brand"
+        className="inline-flex cursor-pointer items-center gap-3 font-display text-[19px] font-bold tracking-[-1px] no-underline max-[420px]:gap-2 max-[420px]:text-base"
         href="#home"
         aria-label="Open Route Free Finder home"
         onClick={(event) => {
@@ -24,12 +24,14 @@ export const Header = ({
           }
         }}
       >
-        <span>
-          Route<span className="brand-light">FreeFinder</span>
-        </span>
+        <span className="font-normal text-[#6b7d91]">RouteFreeFinder</span>
       </a>
-      <nav className="main-nav" aria-label="Main navigation">
+      <nav
+        className="flex items-center gap-9 text-md font-semibold max-[760px]:gap-4 max-[760px]:text-[12px] max-[420px]:gap-3 max-[420px]:text-xs"
+        aria-label="Main navigation"
+      >
         <a
+          className="cursor-pointer no-underline transition-opacity hover:opacity-65 focus-visible:outline-offset-4 motion-reduce:transition-none"
           href="#about"
           onClick={(event) => {
             if (!isHome) {
@@ -41,7 +43,7 @@ export const Header = ({
           About
         </a>
         <a
-          className="nav-cta"
+          className="cursor-pointer no-underline transition-opacity hover:opacity-65 focus-visible:outline-offset-4 motion-reduce:transition-none"
           href="#add"
           onClick={(event) => {
             event.preventDefault()

@@ -51,5 +51,5 @@ Open the local URL printed by Vite in your browser.
 - `src/App.tsx` — switches between the home and contribution views.
 - `src/components/` — reusable page sections and forms.
 - `src/pages/AddPage.tsx` — route creation and image upload tabs.
-- `src/App.css` and `src/index.css` — application and global styles.
+- `src/index.css` — global styles and theme tokens.
 - `public/` — static files served from the site root.

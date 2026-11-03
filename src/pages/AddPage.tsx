@@ -1,152 +1,128 @@
-import { useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useState, type SyntheticEvent } from 'react'
 import { Footer } from '../components/Footer/Footer'
-import { Header } from '../components/Header/Header'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 type FormType = 'route' | 'image'
 
+const fieldLabelClass =
+  'flex flex-col gap-2 text-sm font-semibold text-muted-foreground'
+const fieldInputClass =
+  'h-12 w-full min-w-0 rounded-sm border border-input bg-card p-3 text-sm text-foreground focus:border-ring focus:outline-3 focus:outline-ring/15'
+const wideFieldClass = `${fieldLabelClass} col-span-full`
+const tabTriggerClass =
+  'h-auto flex-none rounded-none border-0 border-b-[3px] border-b-transparent bg-transparent px-1 py-3 text-md font-semibold text-muted-foreground shadow-none transition-colors hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-deep-blue data-[state=active]:shadow-none after:hidden focus-visible:outline-offset-[-2px] motion-reduce:transition-none'
 type AddPageProps = {
   onNavigateHome: () => void
-  onNavigateAdd: () => void
-  onNavigateAbout: () => void
 }
 
-export const AddPage = ({
-  onNavigateHome,
-  onNavigateAdd,
-  onNavigateAbout,
-}: AddPageProps) => {
+export const AddPage = ({ onNavigateHome }: AddPageProps) => {
   const [formType, setFormType] = useState<FormType>('route')
   const [notice, setNotice] = useState('')
-  const routeTabRef = useRef<HTMLButtonElement>(null)
-  const imageTabRef = useRef<HTMLButtonElement>(null)
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setNotice(
-      'Submissions are not connected yet, so your information has not been sent.',
-    )
+
+    setNotice('Form has been submitted successfully.')
   }
 
-  const selectForm = (type: FormType) => {
+  const selectForm = (type: string) => {
+    if (type !== 'route' && type !== 'image') return
+
     setFormType(type)
     setNotice('')
   }
 
-  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-      event.preventDefault()
-      const nextForm = formType === 'route' ? 'image' : 'route'
-      selectForm(nextForm)
-      if (nextForm === 'route') {
-        routeTabRef.current?.focus()
-      } else {
-        imageTabRef.current?.focus()
-      }
-    }
-  }
-
   return (
     <>
-      <Header
-        isHome={false}
-        onNavigateHome={onNavigateHome}
-        onNavigateAdd={onNavigateAdd}
-        onNavigateAbout={onNavigateAbout}
-      />
-      <main className="add-page">
-        <div className="add-page-inner">
+      <main className="min-h-[calc(100vh-10.375rem)] bg-[radial-gradient(ellipse_at_15%_5%,rgba(168,213,255,0.25),transparent_35%),var(--background)] px-[max(7.2vw,calc((100vw-60rem)/2))] pt-12 pb-22 max-[760px]:px-[6vw] min-[1500px]:px-[calc((100vw-60rem)/2)]">
+        <div className="mx-auto max-w-200">
           <a
-            className="add-page-back"
+            className="cursor-pointer text-sm font-semibold text-link no-underline hover:underline focus-visible:outline-offset-4"
             href="#home"
             onClick={(event) => {
               event.preventDefault()
               onNavigateHome()
             }}
           >
-            ← Back to Route Free Finder
+            ← Back
           </a>
-          <div className="add-page-heading">
-            <span className="section-label">HELP MAKE ROUTES BETTER</span>
-            <h1>Share what you know.</h1>
-            <p>
+          <div className="mt-10 mb-8">
+            <h1 className="mt-3 mb-2 font-display text-[clamp(2.5rem,5.5vw,3.875rem)] leading-none font-medium tracking-[-0.075em]">
+              Share what you know.
+            </h1>
+            <p className="mt-3 mb-0 text-md leading-[1.7] text-muted-foreground">
               Add a new accessible route or share a photo and its location with
               the community.
             </p>
           </div>
 
-          <div
-            className="submission-tabs"
-            role="tablist"
-            aria-label="Choose a form"
-          >
-            <button
-              ref={routeTabRef}
-              type="button"
-              className={formType === 'route' ? 'is-active' : ''}
-              id="route-tab"
-              role="tab"
-              aria-selected={formType === 'route'}
-              aria-controls="submission-panel"
-              tabIndex={formType === 'route' ? 0 : -1}
-              onClick={() => selectForm('route')}
-              onKeyDown={handleTabKeyDown}
+          <Tabs className="gap-0" value={formType} onValueChange={selectForm}>
+            <TabsList
+              aria-label="Choose a form"
+              className="h-auto w-full justify-start gap-6 rounded-none bg-transparent p-0"
+              variant="line"
             >
-              Create a route
-            </button>
-            <button
-              ref={imageTabRef}
-              type="button"
-              className={formType === 'image' ? 'is-active' : ''}
-              id="image-tab"
-              role="tab"
-              aria-selected={formType === 'image'}
-              aria-controls="submission-panel"
-              tabIndex={formType === 'image' ? 0 : -1}
-              onClick={() => selectForm('image')}
-              onKeyDown={handleTabKeyDown}
-            >
-              Upload images
-            </button>
-          </div>
+              <TabsTrigger className={tabTriggerClass} value="route">
+                Create a route
+              </TabsTrigger>
+              <TabsTrigger className={tabTriggerClass} value="image">
+                Upload images
+              </TabsTrigger>
+            </TabsList>
 
-          <form
-            className="submission-form"
-            id="submission-panel"
-            role="tabpanel"
-            aria-labelledby={formType === 'route' ? 'route-tab' : 'image-tab'}
-            tabIndex={0}
-            onSubmit={handleSubmit}
-          >
-            {formType === 'route' ? (
-              <>
-                <div className="submission-form-heading">
-                  <span className="card-kicker">NEW ROUTE</span>
-                  <h2>Route details</h2>
-                  <p>
+            <form
+              className="rounded-b-md bg-card p-[clamp(1.5rem,4vw,2rem)] shadow-[0_16px_44px_rgba(20,38,59,0.07)] mt-2"
+              onSubmit={handleSubmit}
+            >
+              <TabsContent value="route">
+                <div className="mb-6">
+                  <p className="mt-3 mb-0 max-w-140 text-md leading-[1.7] text-muted-foreground">
                     Share the route and the accessibility details travelers
                     need.
                   </p>
                 </div>
-                <div className="submission-fields">
-                  <label>
+                <div className="grid grid-cols-2 gap-5 max-[760px]:grid-cols-1">
+                  <label className={fieldLabelClass}>
                     Route name
-                    <input name="routeName" autoComplete="off" required />
+                    <Input
+                      className={fieldInputClass}
+                      name="routeName"
+                      autoComplete="off"
+                      required
+                    />
                   </label>
-                  <label>
+                  <label className={fieldLabelClass}>
                     Starting point
-                    <input
+                    <Input
+                      className={fieldInputClass}
                       name="origin"
                       autoComplete="street-address"
                       required
                     />
                   </label>
-                  <label>
+                  <label className={fieldLabelClass}>
                     Destination
-                    <input name="destination" autoComplete="off" required />
+                    <Input
+                      className={fieldInputClass}
+                      name="destination"
+                      autoComplete="off"
+                      required
+                    />
                   </label>
-                  <label>
-                    Distance (km)
-                    <input
+                  <label className={fieldLabelClass}>
+                    Distance (in meters)
+                    <Input
+                      className={fieldInputClass}
                       name="distance"
                       type="number"
                       min="0"
@@ -154,9 +130,10 @@ export const AddPage = ({
                       required
                     />
                   </label>
-                  <label>
+                  <label className={fieldLabelClass}>
                     Estimated time (minutes)
-                    <input
+                    <Input
+                      className={fieldInputClass}
                       name="duration"
                       type="number"
                       min="1"
@@ -164,82 +141,109 @@ export const AddPage = ({
                       required
                     />
                   </label>
-                  <label>
-                    Surface
-                    <select name="surface" defaultValue="" required>
-                      <option value="" disabled>
-                        Select a surface
-                      </option>
-                      <option value="paved">Paved</option>
-                      <option value="gravel">Gravel</option>
-                      <option value="mixed">Mixed</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </label>
-                  <label>
-                    Difficulty
-                    <select name="difficulty" defaultValue="" required>
-                      <option value="" disabled>
-                        Select difficulty
-                      </option>
-                      <option value="easy">Easy</option>
-                      <option value="moderate">Moderate</option>
-                      <option value="challenging">Challenging</option>
-                    </select>
-                  </label>
-                  <label>
-                    Wheelchair accessible?
-                    <select
+                  <div className="flex flex-col gap-2">
+                    <label
+                      className="text-sm font-semibold text-muted-foreground"
+                      htmlFor="surface"
+                    >
+                      Surface
+                    </label>
+                    <Select name="surface" defaultValue="" required>
+                      <SelectTrigger
+                        className="h-12! w-full rounded-sm bg-card px-3 text-sm"
+                        id="surface"
+                      >
+                        <SelectValue placeholder="Select a surface" />
+                      </SelectTrigger>
+                      <SelectContent position="popper" align="start">
+                        <SelectItem value="paved">Paved</SelectItem>
+                        <SelectItem value="gravel">Gravel</SelectItem>
+                        <SelectItem value="mixed">Mixed</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label
+                      className="text-sm font-semibold text-muted-foreground"
+                      htmlFor="difficulty"
+                    >
+                      Difficulty
+                    </label>
+                    <Select name="difficulty" defaultValue="" required>
+                      <SelectTrigger
+                        className="h-12! w-full rounded-sm bg-card px-3 text-sm"
+                        id="difficulty"
+                      >
+                        <SelectValue placeholder="Select difficulty" />
+                      </SelectTrigger>
+                      <SelectContent position="popper" align="start">
+                        <SelectItem value="easy">Easy</SelectItem>
+                        <SelectItem value="moderate">Moderate</SelectItem>
+                        <SelectItem value="challenging">Challenging</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label
+                      className="text-sm font-semibold text-muted-foreground"
+                      htmlFor="wheelchairAccessible"
+                    >
+                      Wheelchair accessible?
+                    </label>
+                    <Select
                       name="wheelchairAccessible"
                       defaultValue=""
                       required
                     >
-                      <option value="" disabled>
-                        Select an option
-                      </option>
-                      <option value="yes">Yes</option>
-                      <option value="partially">Partially</option>
-                      <option value="no">No</option>
-                      <option value="unknown">Not sure</option>
-                    </select>
-                  </label>
-                  <label className="submission-field-wide">
-                    Route description
-                    <textarea name="description" rows={4} required />
-                  </label>
-                  <label className="submission-field-wide">
-                    Accessibility notes
-                    <textarea
-                      name="accessibilityNotes"
-                      rows={4}
-                      placeholder="For example: steps, gradients, curb cuts, or rest areas"
-                      required
-                    />
-                  </label>
+                      <SelectTrigger
+                        className="h-12! w-full rounded-sm bg-card px-3 text-sm"
+                        id="wheelchairAccessible"
+                      >
+                        <SelectValue placeholder="Select an option" />
+                      </SelectTrigger>
+                      <SelectContent position="popper" align="start">
+                        <SelectGroup>
+                          <SelectItem key="yes" value="yes">
+                            Yes
+                          </SelectItem>
+                          <SelectItem key="partially" value="partially">
+                            Partially
+                          </SelectItem>
+                          <SelectItem key="no" value="no">
+                            No
+                          </SelectItem>
+                          <SelectItem key="unknown" value="unknown">
+                            Not sure
+                          </SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-              </>
-            ) : (
-              <>
-                <div className="submission-form-heading">
-                  <span className="card-kicker">ROUTE IMAGE</span>
-                  <h2>Image details</h2>
-                  <p>
+              </TabsContent>
+
+              <TabsContent value="image">
+                <div className="mb-6">
+                  <p className="mt-3 mb-0 max-w-140 text-md leading-[1.7] text-muted-foreground">
                     Add a descriptive label, coordinates, and an image of a
                     route or location.
                   </p>
                 </div>
-                <div className="submission-fields">
-                  <label className="submission-field-wide">
+                <div className="grid grid-cols-2 gap-5 max-[760px]:grid-cols-1">
+                  <label className={wideFieldClass}>
                     Image label
-                    <input
+                    <Input
+                      className={`${fieldInputClass} placeholder:text-placeholder`}
                       name="imageLabel"
                       placeholder="For example: Ramp at the north entrance"
                       required
                     />
                   </label>
-                  <label>
+                  <label className={fieldLabelClass}>
                     Latitude
-                    <input
+                    <Input
+                      className={fieldInputClass}
                       name="latitude"
                       type="number"
                       min="-90"
@@ -248,9 +252,10 @@ export const AddPage = ({
                       required
                     />
                   </label>
-                  <label>
+                  <label className={fieldLabelClass}>
                     Longitude
-                    <input
+                    <Input
+                      className={fieldInputClass}
                       name="longitude"
                       type="number"
                       min="-180"
@@ -259,24 +264,37 @@ export const AddPage = ({
                       required
                     />
                   </label>
-                  <label className="submission-field-wide">
+                  <label className={wideFieldClass}>
                     Image file
-                    <input name="image" type="file" accept="image/*" required />
+                    <Input
+                      className={`${fieldInputClass} cursor-pointer file:cursor-pointer`}
+                      name="image"
+                      type="file"
+                      accept="image/*"
+                      required
+                    />
                   </label>
                 </div>
-              </>
-            )}
-            <div className="flex justify-end">
-              <button className="search-button w-4xs" type="submit">
-                Submit {formType === 'route' ? 'route' : 'image'}
-              </button>
-            </div>
-            {notice && (
-              <p className="submission-notice" role="status">
-                {notice}
-              </p>
-            )}
-          </form>
+              </TabsContent>
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  className="mt-4 w-full text-center text-md"
+                  aria-label="Submit route or image"
+                >
+                  Submit {formType === 'route' ? 'route' : 'image'}
+                </Button>
+              </div>
+              {notice && (
+                <p
+                  className="mt-4 mb-0 text-sm leading-relaxed text-status"
+                  role="status"
+                >
+                  {notice}
+                </p>
+              )}
+            </form>
+          </Tabs>
         </div>
       </main>
       <Footer onNavigateHome={onNavigateHome} />

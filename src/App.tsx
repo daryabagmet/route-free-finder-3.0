@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './App.css'
 import { Header } from './components/Header/Header'
 import { About } from './components/About/About'
 import { Hero } from './components/Hero/Hero'
@@ -29,17 +28,11 @@ function App() {
   }
 
   if (page === 'add') {
-    return (
-      <AddPage
-        onNavigateHome={navigateHome}
-        onNavigateAdd={navigateAdd}
-        onNavigateAbout={navigateAbout}
-      />
-    )
+    return <AddPage onNavigateHome={navigateHome} />
   }
 
   return (
-    <main>
+    <main className="w-full overflow-hidden">
       <Header
         isHome
         onNavigateHome={navigateHome}
