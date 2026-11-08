@@ -1,22 +1,33 @@
 import { MapPin, Navigation } from 'lucide-react'
+import { useForm } from 'react-hook-form'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+
+type RouteSearchFields = {
+  origin: string
+  destination: string
+}
 
 export const RouteForm = ({
   setError,
 }: {
   setError: (error: string) => void
 }) => {
-  const handleSearch = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RouteSearchFields>()
 
+  const handleSearch = () => {
     setError('We could not load routes right now. Please try again later.')
   }
 
   return (
     <form
-      className="relative z-10 w-full max-w-120 justify-self-end rounded-md bg-[#f4f7fb] p-7 text-[#14263b] shadow-[0_18px_60px_rgba(0,0,0,0.17)] max-[760px]:w-full max-[760px]:p-6 max-[420px]:px-5"
-      onSubmit={handleSearch}
+      className="relative z-10 w-full max-w-120 justify-self-end rounded-md bg-[#f4f7fb] p-5 text-[#14263b] shadow-[0_18px_60px_rgba(0,0,0,0.17)] max-[760px]:w-full"
+      noValidate
+      onSubmit={handleSubmit(handleSearch)}
     >
       <div className="flex items-start justify-between">
         <h2 className="font-display font-medium text-lg tracking-tight">
@@ -44,12 +55,17 @@ export const RouteForm = ({
         <Input
           className="h-full border-0 bg-transparent px-0 py-0 text-sm text-[#14263b] shadow-none outline-none placeholder:text-[#9aa39d] focus-visible:border-transparent focus-visible:ring-0"
           id="origin"
-          name="origin"
           placeholder="Start place"
           autoComplete="address-level2"
-          required
+          aria-invalid={Boolean(errors.origin)}
+          {...register('origin', { required: 'Enter a starting place.' })}
         />
       </div>
+      {errors.origin && (
+        <p className="mt-1 text-sm text-destructive" role="alert">
+          {errors.origin.message}
+        </p>
+      )}
       <label
         className="mt-4 mb-2 block text-sm font-semibold text-[#53677d]"
         htmlFor="destination"
@@ -64,12 +80,19 @@ export const RouteForm = ({
         <Input
           className="h-full border-0 bg-transparent px-0 py-0 text-sm text-[#14263b] shadow-none outline-none placeholder:text-placeholder focus-visible:border-transparent focus-visible:ring-0"
           id="destination"
-          name="destination"
           placeholder="Destination place"
           autoComplete="off"
-          required
+          aria-invalid={Boolean(errors.destination)}
+          {...register('destination', {
+            required: 'Enter a destination.',
+          })}
         />
       </div>
+      {errors.destination && (
+        <p className="mt-1 text-sm text-destructive" role="alert">
+          {errors.destination.message}
+        </p>
+      )}
       <Button
         type="submit"
         className="mt-6 w-full text-center text-md gap-1 min-h-12"

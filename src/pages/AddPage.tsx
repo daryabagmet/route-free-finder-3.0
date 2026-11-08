@@ -1,4 +1,5 @@
-import { useState, type SyntheticEvent } from 'react'
+import { useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { Footer } from '../components/Footer/Footer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,11 +15,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 type FormType = 'route' | 'image'
 
+type ContributionFormFields = {
+  routeName: string
+  origin: string
+  destination: string
+  distance: number
+  duration: number
+  surface: string
+  difficulty: string
+  wheelchairAccessible: string
+  imageLabel: string
+  latitude: number
+  longitude: number
+  image: FileList
+}
+
 const fieldLabelClass =
   'flex flex-col gap-2 text-sm font-semibold text-muted-foreground'
 const fieldInputClass =
   'h-12 w-full min-w-0 rounded-sm border border-input bg-card p-3 text-sm text-foreground focus:border-ring focus:outline-3 focus:outline-ring/15'
 const wideFieldClass = `${fieldLabelClass} col-span-full`
+const fieldErrorClass = 'text-sm font-normal text-destructive'
 const tabTriggerClass =
   'h-auto flex-none rounded-none border-0 border-b-[3px] border-b-transparent bg-transparent px-1 py-3 text-md font-semibold text-muted-foreground shadow-none transition-colors hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-deep-blue data-[state=active]:shadow-none after:hidden focus-visible:outline-offset-[-2px] motion-reduce:transition-none'
 type AddPageProps = {
@@ -28,10 +45,14 @@ type AddPageProps = {
 export const AddPage = ({ onNavigateHome }: AddPageProps) => {
   const [formType, setFormType] = useState<FormType>('route')
   const [notice, setNotice] = useState('')
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ContributionFormFields>()
 
-  const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
+  const handleValidSubmit = () => {
     setNotice('Form has been submitted successfully.')
   }
 
@@ -82,7 +103,8 @@ export const AddPage = ({ onNavigateHome }: AddPageProps) => {
 
             <form
               className="rounded-b-md bg-card p-[clamp(1.5rem,4vw,2rem)] shadow-[0_16px_44px_rgba(20,38,59,0.07)] mt-2"
-              onSubmit={handleSubmit}
+              noValidate
+              onSubmit={handleSubmit(handleValidSubmit)}
             >
               <TabsContent value="route">
                 <div className="mb-6">
@@ -96,50 +118,117 @@ export const AddPage = ({ onNavigateHome }: AddPageProps) => {
                     Route name
                     <Input
                       className={fieldInputClass}
-                      name="routeName"
                       autoComplete="off"
-                      required
+                      aria-invalid={Boolean(errors.routeName)}
+                      aria-describedby={
+                        errors.routeName ? 'routeName-error' : undefined
+                      }
+                      {...register('routeName', {
+                        required: 'Enter a route name.',
+                      })}
                     />
+                    {errors.routeName && (
+                      <span id="routeName-error" className={fieldErrorClass}>
+                        {errors.routeName.message}
+                      </span>
+                    )}
                   </label>
                   <label className={fieldLabelClass}>
                     Starting point
                     <Input
                       className={fieldInputClass}
-                      name="origin"
                       autoComplete="street-address"
-                      required
+                      aria-invalid={Boolean(errors.origin)}
+                      aria-describedby={
+                        errors.origin ? 'route-origin-error' : undefined
+                      }
+                      {...register('origin', {
+                        required: 'Enter a starting point.',
+                      })}
                     />
+                    {errors.origin && (
+                      <span id="route-origin-error" className={fieldErrorClass}>
+                        {errors.origin.message}
+                      </span>
+                    )}
                   </label>
                   <label className={fieldLabelClass}>
                     Destination
                     <Input
                       className={fieldInputClass}
-                      name="destination"
                       autoComplete="off"
-                      required
+                      aria-invalid={Boolean(errors.destination)}
+                      aria-describedby={
+                        errors.destination
+                          ? 'route-destination-error'
+                          : undefined
+                      }
+                      {...register('destination', {
+                        required: 'Enter a destination.',
+                      })}
                     />
+                    {errors.destination && (
+                      <span
+                        id="route-destination-error"
+                        className={fieldErrorClass}
+                      >
+                        {errors.destination.message}
+                      </span>
+                    )}
                   </label>
                   <label className={fieldLabelClass}>
                     Distance (in meters)
                     <Input
                       className={fieldInputClass}
-                      name="distance"
                       type="number"
-                      min="0"
                       step="0.1"
-                      required
+                      aria-invalid={Boolean(errors.distance)}
+                      aria-describedby={
+                        errors.distance ? 'distance-error' : undefined
+                      }
+                      {...register('distance', {
+                        required: 'Enter the route distance.',
+                        valueAsNumber: true,
+                        min: {
+                          value: 0,
+                          message: 'Distance must be zero or greater.',
+                        },
+                      })}
                     />
+                    {errors.distance && (
+                      <span id="distance-error" className={fieldErrorClass}>
+                        {errors.distance.message}
+                      </span>
+                    )}
                   </label>
                   <label className={fieldLabelClass}>
                     Estimated time (minutes)
                     <Input
                       className={fieldInputClass}
-                      name="duration"
                       type="number"
-                      min="1"
                       step="1"
-                      required
+                      aria-invalid={Boolean(errors.duration)}
+                      aria-describedby={
+                        errors.duration ? 'duration-error' : undefined
+                      }
+                      {...register('duration', {
+                        required: 'Enter the estimated time.',
+                        valueAsNumber: true,
+                        min: {
+                          value: 1,
+                          message:
+                            'Estimated time must be at least one minute.',
+                        },
+                        validate: (value) =>
+                          Number.isInteger(value) ||
+                          'Estimated time must be a whole number.',
+                      })}
                     />
+                    {errors.duration && (
+                      <span id="duration-error" className={fieldErrorClass}>
+                        {errors.duration.message}
+                      </span>
+                    )}
                   </label>
                   <div className="flex flex-col gap-2">
                     <label
@@ -148,20 +237,42 @@ export const AddPage = ({ onNavigateHome }: AddPageProps) => {
                     >
                       Surface
                     </label>
-                    <Select name="surface" defaultValue="" required>
-                      <SelectTrigger
-                        className="h-12! w-full rounded-sm bg-card px-3 text-sm"
-                        id="surface"
-                      >
-                        <SelectValue placeholder="Select a surface" />
-                      </SelectTrigger>
-                      <SelectContent position="popper" align="start">
-                        <SelectItem value="paved">Paved</SelectItem>
-                        <SelectItem value="gravel">Gravel</SelectItem>
-                        <SelectItem value="mixed">Mixed</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="surface"
+                      control={control}
+                      rules={{ required: 'Select a surface.' }}
+                      render={({ field }) => (
+                        <Select
+                          name={field.name}
+                          value={field.value ?? ''}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger
+                            ref={field.ref}
+                            className="h-12! w-full rounded-sm bg-card px-3 text-sm"
+                            id="surface"
+                            aria-invalid={Boolean(errors.surface)}
+                            aria-describedby={
+                              errors.surface ? 'surface-error' : undefined
+                            }
+                            onBlur={field.onBlur}
+                          >
+                            <SelectValue placeholder="Select a surface" />
+                          </SelectTrigger>
+                          <SelectContent position="popper" align="start">
+                            <SelectItem value="paved">Paved</SelectItem>
+                            <SelectItem value="gravel">Gravel</SelectItem>
+                            <SelectItem value="mixed">Mixed</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.surface && (
+                      <span id="surface-error" className={fieldErrorClass}>
+                        {errors.surface.message}
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-col gap-2">
                     <label
@@ -170,19 +281,43 @@ export const AddPage = ({ onNavigateHome }: AddPageProps) => {
                     >
                       Difficulty
                     </label>
-                    <Select name="difficulty" defaultValue="" required>
-                      <SelectTrigger
-                        className="h-12! w-full rounded-sm bg-card px-3 text-sm"
-                        id="difficulty"
-                      >
-                        <SelectValue placeholder="Select difficulty" />
-                      </SelectTrigger>
-                      <SelectContent position="popper" align="start">
-                        <SelectItem value="easy">Easy</SelectItem>
-                        <SelectItem value="moderate">Moderate</SelectItem>
-                        <SelectItem value="challenging">Challenging</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="difficulty"
+                      control={control}
+                      rules={{ required: 'Select a difficulty.' }}
+                      render={({ field }) => (
+                        <Select
+                          name={field.name}
+                          value={field.value ?? ''}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger
+                            ref={field.ref}
+                            className="h-12! w-full rounded-sm bg-card px-3 text-sm"
+                            id="difficulty"
+                            aria-invalid={Boolean(errors.difficulty)}
+                            aria-describedby={
+                              errors.difficulty ? 'difficulty-error' : undefined
+                            }
+                            onBlur={field.onBlur}
+                          >
+                            <SelectValue placeholder="Select difficulty" />
+                          </SelectTrigger>
+                          <SelectContent position="popper" align="start">
+                            <SelectItem value="easy">Easy</SelectItem>
+                            <SelectItem value="moderate">Moderate</SelectItem>
+                            <SelectItem value="challenging">
+                              Challenging
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.difficulty && (
+                      <span id="difficulty-error" className={fieldErrorClass}>
+                        {errors.difficulty.message}
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-col gap-2">
                     <label
@@ -191,34 +326,51 @@ export const AddPage = ({ onNavigateHome }: AddPageProps) => {
                     >
                       Wheelchair accessible?
                     </label>
-                    <Select
+                    <Controller
                       name="wheelchairAccessible"
-                      defaultValue=""
-                      required
-                    >
-                      <SelectTrigger
-                        className="h-12! w-full rounded-sm bg-card px-3 text-sm"
-                        id="wheelchairAccessible"
+                      control={control}
+                      rules={{ required: 'Select an accessibility option.' }}
+                      render={({ field }) => (
+                        <Select
+                          name={field.name}
+                          value={field.value ?? ''}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger
+                            ref={field.ref}
+                            className="h-12! w-full rounded-sm bg-card px-3 text-sm"
+                            id="wheelchairAccessible"
+                            aria-invalid={Boolean(errors.wheelchairAccessible)}
+                            aria-describedby={
+                              errors.wheelchairAccessible
+                                ? 'wheelchairAccessible-error'
+                                : undefined
+                            }
+                            onBlur={field.onBlur}
+                          >
+                            <SelectValue placeholder="Select an option" />
+                          </SelectTrigger>
+                          <SelectContent position="popper" align="start">
+                            <SelectGroup>
+                              <SelectItem value="yes">Yes</SelectItem>
+                              <SelectItem value="partially">
+                                Partially
+                              </SelectItem>
+                              <SelectItem value="no">No</SelectItem>
+                              <SelectItem value="unknown">Not sure</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.wheelchairAccessible && (
+                      <span
+                        id="wheelchairAccessible-error"
+                        className={fieldErrorClass}
                       >
-                        <SelectValue placeholder="Select an option" />
-                      </SelectTrigger>
-                      <SelectContent position="popper" align="start">
-                        <SelectGroup>
-                          <SelectItem key="yes" value="yes">
-                            Yes
-                          </SelectItem>
-                          <SelectItem key="partially" value="partially">
-                            Partially
-                          </SelectItem>
-                          <SelectItem key="no" value="no">
-                            No
-                          </SelectItem>
-                          <SelectItem key="unknown" value="unknown">
-                            Not sure
-                          </SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                        {errors.wheelchairAccessible.message}
+                      </span>
+                    )}
                   </div>
                 </div>
               </TabsContent>
@@ -235,44 +387,98 @@ export const AddPage = ({ onNavigateHome }: AddPageProps) => {
                     Image label
                     <Input
                       className={`${fieldInputClass} placeholder:text-placeholder`}
-                      name="imageLabel"
                       placeholder="For example: Ramp at the north entrance"
-                      required
+                      aria-invalid={Boolean(errors.imageLabel)}
+                      aria-describedby={
+                        errors.imageLabel ? 'imageLabel-error' : undefined
+                      }
+                      {...register('imageLabel', {
+                        required: 'Enter an image label.',
+                      })}
                     />
+                    {errors.imageLabel && (
+                      <span id="imageLabel-error" className={fieldErrorClass}>
+                        {errors.imageLabel.message}
+                      </span>
+                    )}
                   </label>
                   <label className={fieldLabelClass}>
                     Latitude
                     <Input
                       className={fieldInputClass}
-                      name="latitude"
                       type="number"
-                      min="-90"
-                      max="90"
                       step="any"
-                      required
+                      aria-invalid={Boolean(errors.latitude)}
+                      aria-describedby={
+                        errors.latitude ? 'latitude-error' : undefined
+                      }
+                      {...register('latitude', {
+                        required: 'Enter a latitude.',
+                        valueAsNumber: true,
+                        min: {
+                          value: -90,
+                          message: 'Latitude must be at least -90.',
+                        },
+                        max: {
+                          value: 90,
+                          message: 'Latitude must be at most 90.',
+                        },
+                      })}
                     />
+                    {errors.latitude && (
+                      <span id="latitude-error" className={fieldErrorClass}>
+                        {errors.latitude.message}
+                      </span>
+                    )}
                   </label>
                   <label className={fieldLabelClass}>
                     Longitude
                     <Input
                       className={fieldInputClass}
-                      name="longitude"
                       type="number"
-                      min="-180"
-                      max="180"
                       step="any"
-                      required
+                      aria-invalid={Boolean(errors.longitude)}
+                      aria-describedby={
+                        errors.longitude ? 'longitude-error' : undefined
+                      }
+                      {...register('longitude', {
+                        required: 'Enter a longitude.',
+                        valueAsNumber: true,
+                        min: {
+                          value: -180,
+                          message: 'Longitude must be at least -180.',
+                        },
+                        max: {
+                          value: 180,
+                          message: 'Longitude must be at most 180.',
+                        },
+                      })}
                     />
+                    {errors.longitude && (
+                      <span id="longitude-error" className={fieldErrorClass}>
+                        {errors.longitude.message}
+                      </span>
+                    )}
                   </label>
                   <label className={wideFieldClass}>
                     Image file
                     <Input
                       className={`${fieldInputClass} cursor-pointer file:cursor-pointer`}
-                      name="image"
                       type="file"
                       accept="image/*"
-                      required
+                      aria-invalid={Boolean(errors.image)}
+                      aria-describedby={
+                        errors.image ? 'image-error' : undefined
+                      }
+                      {...register('image', {
+                        required: 'Choose an image file.',
+                      })}
                     />
+                    {errors.image && (
+                      <span id="image-error" className={fieldErrorClass}>
+                        {errors.image.message}
+                      </span>
+                    )}
                   </label>
                 </div>
               </TabsContent>
